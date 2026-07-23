@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosko en México — Caso de estrategia de entrada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1729;
+    --navy-2:#111f36;
+    --navy-soft:#16233d;
+    --teal:#14b8a6;
+    --teal-light:#5eead4;
+    --teal-dark:#0f9488;
+    --ink:#111827;
+    --muted:#5b6472;
+    --line:#e4e8ee;
+    --bg-soft:#eef2f7;
+    --bg-soft-2:#e7edf5;
+    --white:#ffffff;
+    --shadow: 0 10px 30px rgba(13,23,41,.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--bg-soft);
+    color:var(--ink);
+  }
+  a{color:inherit;}
+
+  /* ---------- top brand bar ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:8px;
+    padding:20px 6vw;
+    font-weight:800; font-size:14px; letter-spacing:.02em;
+    color:rgba(255,255,255,.85);
+    background:var(--navy);
+  }
+  .topbar .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+
+  /* ---------- hero ---------- */
+  .hero{
+    background:linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 100%);
+    color:#fff;
+    padding:64px 6vw 84px;
+  }
+  .hero .eyebrow{
+    font-size:12.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--teal-light); margin-bottom:14px;
+  }
+  .hero h1{
+    font-size:clamp(30px,4.2vw,50px); line-height:1.12; margin:0 0 16px; font-weight:800; letter-spacing:-.01em;
+    max-width:820px;
+  }
+  .hero p.subtitle{
+    font-size:17px; line-height:1.6; color:rgba(255,255,255,.72); max-width:640px; margin:0 0 28px;
+  }
+  .hero .meta{font-size:13.5px; color:rgba(255,255,255,.55);}
+  .hero .meta b{color:#fff;}
+  .hero .cta-row{display:flex; gap:14px; margin-top:30px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:13px 22px; border-radius:10px; font-weight:700; font-size:14.5px;
+    text-decoration:none; border:1px solid transparent; transition:all .2s ease;
+  }
+  .btn-primary{background:var(--teal); color:#042e28;}
+  .btn-primary:hover{background:var(--teal-light);}
+  .btn-ghost{background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.22);}
+  .btn-ghost:hover{background:rgba(255,255,255,.16);}
+
+  /* ---------- content ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:0 6vw;}
+  .section-title{
+    font-size:12.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--teal-dark); margin:0 0 8px;
+  }
+  .section-lead{font-size:15px; color:var(--muted); margin:0 0 28px; max-width:640px; line-height:1.55;}
+
+  .cards{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:22px;
+    margin:-48px 0 56px;
+    position:relative; z-index:2;
+  }
+  .card{
+    background:#fff; border-radius:16px; padding:26px 26px 24px;
+    box-shadow:var(--shadow); border:1px solid var(--line);
+    display:flex; flex-direction:column;
+  }
+  .card .icon{
+    width:44px; height:44px; border-radius:12px; background:var(--bg-soft-2);
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+    margin-bottom:16px; color:var(--teal-dark);
+  }
+  .card h3{margin:0 0 8px; font-size:17px; font-weight:800;}
+  .card p{margin:0 0 18px; font-size:13.5px; line-height:1.55; color:var(--muted); flex:1;}
+  .card .btn{align-self:flex-start;}
+
+  .card.video .icon{background:rgba(20,184,166,.12);}
+  .video-note{
+    font-size:12px; color:var(--muted); font-style:italic; margin-top:10px;
+  }
+
+  .docs-list{display:flex; flex-direction:column; gap:0;}
+  .docs-list a{
+    display:flex; align-items:center; gap:12px;
+    padding:10px 0; font-size:13.5px; font-weight:600;
+    border-bottom:1px solid var(--line); text-decoration:none; color:var(--ink);
+  }
+  .docs-list a:last-child{border-bottom:none;}
+  .docs-list a:hover{color:var(--teal-dark);}
+  .docs-list .file-icon{
+    flex:none; width:28px; height:28px; border-radius:7px; background:var(--bg-soft-2);
+    display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--teal-dark);
+  }
+  .docs-list .file-meta{margin-left:auto; font-size:11px; color:var(--muted); font-weight:500;}
+
+  .about{
+    background:#fff; border-radius:16px; padding:34px 36px; margin-bottom:56px;
+    border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .about h2{margin:0 0 12px; font-size:20px;}
+  .about p{margin:0 0 14px; font-size:14.5px; line-height:1.65; color:var(--ink);}
+  .about p:last-child{margin-bottom:0;}
+  .stat-row{display:flex; gap:32px; margin-top:22px; flex-wrap:wrap;}
+  .stat-row div{font-size:12.5px; color:var(--muted);}
+  .stat-row b{display:block; font-size:22px; color:var(--teal-dark); font-weight:800;}
+
+  footer{
+    text-align:center; padding:36px 6vw 48px; font-size:12.5px; color:var(--muted);
+  }
+  footer a{color:var(--teal-dark); font-weight:600; text-decoration:none;}
+
+  @media (max-width:820px){
+    .cards{grid-template-columns:1fr; margin-top:-30px;}
+    .hero{padding:48px 6vw 64px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar"><span class="dot"></span>KIOSKO · MÉXICO</div>
+
+  <div class="hero">
+    <div class="wrap" style="padding:0;">
+      <div class="eyebrow">Caso de estrategia · Product Manager</div>
+      <h1>Kiosko en México: estrategia de entrada al mercado</h1>
+      <p class="subtitle">Investigación de mercado, panorama competitivo, propuesta de valor y plan de ejecución a seis meses para lanzar Kiosko en México.</p>
+      <div class="meta"><b>Leonardo Torres</b> · Product Manager · Julio 2026</div>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="./kiosko-mexico-pos.html">Ver la presentación interactiva →</a>
+        <a class="btn btn-ghost" href="#documentos">Ver documentos</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="cards">
+      <div class="card">
+        <div class="icon">▤</div>
+        <h3>Presentación interactiva</h3>
+        <p>Las 25 slides del caso en una página web navegable: benchmark filtrable, matriz comparativa interactiva, roadmap visual y más.</p>
+        <a class="btn btn-primary" href="./kiosko-mexico-pos.html">Abrir presentación</a>
+      </div>
+      <div class="card video">
+        <div class="icon">▶</div>
+        <h3>Video de la presentación</h3>
+        <p>Grabación de 4 minutos explicando el caso, slide por slide.</p>
+        <a class="btn btn-primary" href="https://github.com/LeonardoPablo1992/kiosko-mexico-caso/releases" target="_blank" rel="noopener">Ver video</a>
+        <div class="video-note">Publicado como Release de GitHub (archivo de video). Ábrelo desde ahí para reproducirlo o descargarlo.</div>
+      </div>
+      <div class="card" id="documentos">
+        <div class="icon">⎘</div>
+        <h3>Documentos</h3>
+        <p>Roadmap, benchmark competitivo y la presentación original.</p>
+        <div class="docs-list">
+          <a href="./docs/kiosko-roadmap.xlsx" download><span class="file-icon">▦</span>Roadmap (Sheet)<span class="file-meta">.xlsx</span></a>
+          <a href="./docs/matrix-benchmark.xlsx" download><span class="file-icon">▦</span>Benchmark competitivo<span class="file-meta">.xlsx</span></a>
+          <a href="./docs/kiosko-ppt-original.pdf" download><span class="file-icon">▤</span>Presentación original<span class="file-meta">.pdf</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="about">
+      <h2>Sobre este caso</h2>
+      <p>México representa la siguiente frontera lógica para Kiosko: un mercado de aproximadamente USD 1.7 mil millones que crece cerca de 9.7% anual, en el que las microempresas, que representan 95% de los negocios del país, prácticamente no utilizan tecnología de gestión.</p>
+      <p>La tesis: competir en México no depende de superar en funcionalidades a los jugadores de pagos, depende de ser el camino más simple para que un micronegocio venda, cobre y cumpla con el SAT desde el primer día, desde su teléfono.</p>
+      <div class="stat-row">
+        <div><b>25</b>slides interactivas</div>
+        <div><b>6 meses</b>plan de ejecución</div>
+        <div><b>10+</b>competidores analizados</div>
+        <div><b>95%</b>de los negocios son microempresas</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Kiosko · Estrategia de entrada a México — <a href="mailto:leonardo.torres@distrito.me">leonardo.torres@distrito.me</a>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiosko en México — Estrategia de entrada al mercado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0d1729;
+    --navy-2:#111f36;
+    --navy-soft:#16233d;
+    --teal:#14b8a6;
+    --teal-light:#5eead4;
+    --teal-dark:#0f9488;
+    --ink:#111827;
+    --muted:#5b6472;
+    --line:#e4e8ee;
+    --bg-soft:#eef2f7;
+    --bg-soft-2:#e7edf5;
+    --white:#ffffff;
+    --red:#dc4c4c;
+    --green:#1a9c72;
+    --amber:#c8951f;
+    --shadow: 0 10px 30px rgba(13,23,41,.10);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--navy);
+    color:var(--ink);
+  }
+  .deck{
+    position:relative;
+    width:100%;
+  }
+
+  /* ---------- top chrome ---------- */
+  .topbar{
+    position:fixed;
+    top:0;left:0;right:0;
+    height:6px;
+    background:rgba(255,255,255,.08);
+    z-index:50;
+  }
+  .topbar-fill{
+    height:100%;
+    width:4.16%;
+    background:linear-gradient(90deg,var(--teal),var(--teal-light));
+    transition:width .35s ease;
+  }
+  .hud{
+    position:fixed;
+    top:14px; right:24px;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:12.5px;
+    letter-spacing:.04em;
+    color:rgba(255,255,255,.8);
+    font-weight:600;
+    text-transform:uppercase;
+    background:rgba(13,23,41,.55); backdrop-filter:blur(6px);
+    padding:7px 14px; border-radius:20px;
+  }
+  .hud .count b{color:#fff;}
+  .kiosko-brand{
+    position:fixed;
+    top:14px; left:24px;
+    z-index:50;
+    display:flex; align-items:center; gap:8px;
+    font-weight:800; font-size:14px; letter-spacing:.02em;
+    color:#fff;
+    background:rgba(13,23,41,.55); backdrop-filter:blur(6px);
+    padding:8px 16px; border-radius:20px;
+  }
+  .kiosko-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+
+  /* ---------- slides (scroll flow) ---------- */
+  .stage{
+    position:relative;
+  }
+  .slide{
+    position:relative;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background:var(--white);
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .7s ease, transform .7s ease;
+    padding:76px 88px 64px;
+    border-bottom:1px solid var(--line);
+  }
+  .slide:last-child{border-bottom:none;}
+  .slide.in-view{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .slide.dark{
+    background:var(--navy);
+    color:#fff;
+    border-bottom-color:rgba(255,255,255,.08);
+  }
+  .slide-eyebrow{
+    font-size:12.5px;
+    font-weight:700;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--teal-dark);
+    margin-bottom:10px;
+  }
+  .slide.dark .slide-eyebrow{color:var(--teal-light);}
+  .slide h1{
+    font-size:clamp(28px,3.2vw,42px);
+    line-height:1.12;
+    margin:0 0 8px;
+    font-weight:800;
+    letter-spacing:-.01em;
+  }
+  .slide .kicker{
+    font-size:14.5px;
+    color:var(--muted);
+    font-style:italic;
+    margin:0 0 26px;
+  }
+  .slide.dark .kicker{color:rgba(255,255,255,.55);}
+  .slide-body{
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    overflow:visible;
+  }
+
+  /* ---------- generic building blocks ---------- */
+  .stat-grid{display:grid; gap:18px; margin:6px 0 22px;}
+  .stat-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+  .stat-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .stat-card{
+    background:var(--bg-soft);
+    border-radius:14px;
+    padding:20px 22px;
+  }
+  .stat-card .num{font-size:30px; font-weight:800; color:var(--teal-dark); margin-bottom:6px;}
+  .stat-card .num.ink{color:var(--ink);}
+  .stat-card .desc{font-size:13.5px; line-height:1.45; color:var(--ink);}
+  .stat-card .src{display:block; margin-top:10px; font-size:11px; font-style:italic; color:var(--muted);}
+
+  .quote-box{
+    background:var(--navy);
+    color:#fff;
+    border-radius:14px;
+    padding:22px 26px;
+    font-size:16px;
+    line-height:1.55;
+    font-style:italic;
+    font-weight:600;
+  }
+  .quote-box .label{
+    display:block; font-style:normal; font-weight:700; text-transform:uppercase;
+    font-size:11.5px; letter-spacing:.1em; color:var(--teal-light); margin-bottom:8px;
+  }
+
+  .callout{
+    background:var(--navy);
+    color:#fff;
+    border-radius:14px;
+    padding:20px 24px;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  .callout .label{
+    display:block; font-weight:700; text-transform:uppercase; font-size:12px;
+    letter-spacing:.08em; color:var(--teal-light); margin-bottom:8px;
+  }
+  .callout.soft{background:var(--bg-soft); color:var(--ink);}
+  .callout.soft .label{color:var(--teal-dark);}
+
+  .note-strip{
+    background:var(--bg-soft-2);
+    border-radius:10px;
+    padding:12px 16px;
+    font-size:12.5px;
+    font-style:italic;
+    color:var(--muted);
+    margin-top:16px;
+  }
+
+  .numbered-list{display:flex; flex-direction:column; gap:22px;}
+  .numbered-item{display:flex; gap:18px; align-items:flex-start;}
+  .num-badge{
+    flex:none; width:34px; height:34px; border-radius:50%;
+    background:var(--navy); color:#fff; font-weight:700; font-size:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .num-badge.teal{background:var(--teal-dark);}
+  .numbered-item .txt p{margin:0; font-size:15px; line-height:1.55; color:var(--ink);}
+  .slide.dark .numbered-item .txt p{color:rgba(255,255,255,.85);}
+  .numbered-item .txt h3{margin:0 0 4px; font-size:16px; font-weight:700;}
+  .numbered-item .txt .sub{font-size:12.5px; font-style:italic; color:var(--muted); margin:0 0 4px;}
+  .slide.dark .numbered-item .txt .sub{color:rgba(255,255,255,.5);}
+
+  /* ---------- tables ---------- */
+  .table-toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px; gap:12px;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px;
+    background:var(--bg-soft); border-radius:9px; padding:8px 14px;
+    font-size:13px; color:var(--muted);
+  }
+  .search-box input{
+    border:none; background:transparent; outline:none;
+    font-size:13px; font-family:inherit; color:var(--ink); width:200px;
+  }
+  .hint-tag{
+    font-size:11px; color:var(--muted); font-style:italic;
+  }
+  table.data-table{
+    width:100%; border-collapse:collapse; font-size:13px;
+  }
+  table.data-table thead th{
+    background:var(--navy); color:#fff;
+    text-align:left; padding:10px 14px; font-weight:600;
+    cursor:pointer; user-select:none;
+    position:sticky; top:0;
+  }
+  table.data-table thead th .arrow{opacity:.5; font-size:11px; margin-left:5px;}
+  table.data-table thead th.sorted .arrow{opacity:1; color:var(--teal-light);}
+  table.data-table tbody tr.main-row.row-alt{background:var(--bg-soft);}
+  table.data-table tbody td{
+    padding:10px 14px; vertical-align:top; line-height:1.45;
+    border-bottom:1px solid var(--line);
+  }
+  table.data-table tbody td.competitor{font-weight:700; white-space:nowrap;}
+  table.data-table tbody tr.hidden-row{display:none !important;}
+  table.data-table tbody tr.main-row{cursor:pointer;}
+  table.data-table tbody tr.main-row:hover td{background:#eaf7f4;}
+  table.data-table tbody tr.main-row .chev-cell{text-align:center; color:var(--muted); width:36px;}
+  table.data-table tbody tr.main-row .chev{display:inline-block; transition:transform .25s ease;}
+  table.data-table tbody tr.main-row.row-open .chev{transform:rotate(180deg); color:var(--teal-dark);}
+  table.data-table tbody tr.detail-row td{background:#fbfdfe; border-bottom:1px solid var(--line); padding:0;}
+  .row-detail{display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:16px 18px 18px 14px;}
+  .rd-block h4{margin:0 0 6px; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em;}
+  .rd-block.strength h4{color:var(--green);}
+  .rd-block.gap h4{color:var(--red);}
+  .rd-block p{margin:0; font-size:13.5px; line-height:1.55;}
+
+  table.matrix-table{width:100%; border-collapse:collapse; font-size:14px;}
+  table.matrix-table thead th{
+    background:var(--navy); color:#fff; padding:11px 16px; text-align:left; font-weight:600;
+  }
+  table.matrix-table thead th.hero{background:var(--teal-dark);}
+  table.matrix-table tbody td{padding:11px 16px; border-bottom:1px solid var(--line);}
+  table.matrix-table tbody td.hero-col{background:#e5faf6; font-weight:700;}
+  table.matrix-table tbody tr:hover td{background:#f5f8fc;}
+  table.matrix-table tbody tr:hover td.hero-col{background:#d9f7f0;}
+  .val-si{color:var(--green); font-weight:700;}
+  .val-no{color:var(--red); font-weight:700;}
+  .val-parcial{color:var(--amber); font-weight:700;}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap;}
+  .tab-btn{
+    border:1px solid var(--line); background:#fff; color:var(--ink);
+    padding:9px 18px; border-radius:999px; font-size:13.5px; font-weight:600;
+    cursor:pointer; font-family:inherit; transition:all .2s ease;
+  }
+  .tab-btn:hover{border-color:var(--teal);}
+  .tab-btn.active{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .slide.dark .tab-btn{background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.18); color:#fff;}
+  .slide.dark .tab-btn.active{background:var(--teal-dark); border-color:var(--teal-dark);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .card-detail{
+    background:var(--bg-soft); border-radius:14px; padding:24px 28px;
+  }
+  .card-detail h3{margin:0 0 4px; font-size:19px; color:var(--teal-dark);}
+  .card-detail .sub{font-size:13px; font-style:italic; color:var(--muted); margin:0 0 12px;}
+  .card-detail p{margin:0; font-size:14.5px; line-height:1.6;}
+
+  .persona-card{background:var(--bg-soft); border-radius:14px; overflow:hidden;}
+  .persona-head{background:var(--teal-dark); color:#fff; padding:16px 22px;}
+  .persona-head.alt{background:var(--navy);}
+  .persona-head h3{margin:0 0 4px; font-size:19px;}
+  .persona-head p{margin:0; font-size:12.5px; opacity:.85;}
+  .persona-body{padding:18px 22px; display:flex; flex-direction:column; gap:14px;}
+  .persona-body .field h4{margin:0 0 4px; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--teal-dark);}
+  .persona-body .field p{margin:0; font-size:13.5px; line-height:1.5;}
+
+  /* ---------- funnel stepper ---------- */
+  .funnel-row{display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin:14px 0 24px;}
+  .funnel-step{
+    flex:1; text-align:center; cursor:pointer; position:relative; padding-top:6px;
+  }
+  .funnel-step .fnode{
+    width:44px; height:44px; border-radius:50%; margin:0 auto 10px;
+    background:var(--bg-soft-2); border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:var(--muted); transition:all .2s ease;
+  }
+  .funnel-step .flabel{font-size:12.5px; font-weight:700; color:var(--muted); transition:color .2s ease;}
+  .funnel-step:not(:last-child)::after{
+    content:''; position:absolute; top:28px; left:calc(50% + 30px); width:calc(100% - 30px);
+    height:2px; background:var(--line);
+  }
+  .funnel-step.active .fnode{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .funnel-step.active .flabel{color:var(--navy);}
+  .funnel-step.done .fnode{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .funnel-detail{background:var(--bg-soft); border-radius:14px; padding:20px 26px; min-height:80px;}
+  .funnel-detail h3{margin:0 0 8px; font-size:17px; color:var(--teal-dark);}
+  .funnel-detail p{margin:0; font-size:14.5px; line-height:1.6;}
+
+  /* ---------- exec summary interactive charts (slide 3) ---------- */
+  .chart-wrap{
+    background:var(--bg-soft); border-radius:14px; padding:22px 28px; margin:4px 0 22px;
+    display:flex; align-items:center; gap:32px; flex-wrap:wrap;
+  }
+  .chart-visual{flex:none; display:flex; align-items:center; justify-content:center; min-width:160px;}
+  .chart-caption{flex:1; min-width:220px; font-size:13.5px; line-height:1.6; color:var(--ink);}
+  .chart-caption .big{display:block; font-size:24px; font-weight:800; color:var(--teal-dark); margin-bottom:4px;}
+  .bar-chart-group{display:flex; align-items:flex-end; gap:30px; height:170px;}
+  .bar-chart-group .bar-col{text-align:center;}
+  .bar-chart-group .bar{width:60px; border-radius:6px 6px 0 0; background:var(--navy); transition:opacity .2s ease, transform .2s ease;}
+  .bar-chart-group .bar-col:nth-child(2) .bar{background:var(--teal);}
+  .bar-chart-group .bar-col:hover .bar{opacity:.82; transform:scaleX(1.05);}
+  .bar-chart-group .bar-val{font-size:13px; font-weight:700; margin-bottom:6px; color:var(--ink);}
+  .bar-chart-group .bar-label{font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .donut-box svg{display:block;}
+
+  /* ---------- roadmap timeline (visual "road path") ---------- */
+  .rm-timeline{position:relative; display:flex; gap:14px; margin:8px 0 22px; padding-top:2px;}
+  .rm-timeline::before{
+    content:''; position:absolute; top:29px; left:8%; right:8%; height:3px;
+    background:var(--line); z-index:0;
+  }
+  .slide.dark .rm-timeline::before{background:rgba(255,255,255,.16);}
+  .rm-node{
+    position:relative; z-index:1; flex:1; text-align:center; cursor:pointer; border:none; font-family:inherit;
+    background:var(--bg-soft); border-radius:12px; padding:14px 12px 12px;
+    transition:all .2s ease;
+  }
+  .rm-node .rm-circle{
+    display:flex; align-items:center; justify-content:center; width:28px; height:28px;
+    border-radius:50%; background:#fff; border:2px solid var(--line);
+    margin:0 auto 8px; font-weight:800; font-size:12.5px; color:var(--muted);
+    transition:all .2s ease;
+  }
+  .rm-node .rm-mes{font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--teal-dark); text-align:center;}
+  .rm-node .rm-title{font-size:13.5px; font-weight:700; margin-top:4px; color:var(--ink); line-height:1.3; text-align:center;}
+  .rm-node.done .rm-circle{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .rm-node.active{background:var(--navy);}
+  .rm-node.active .rm-circle{background:var(--teal-light); border-color:var(--teal-light); color:var(--navy);}
+  .rm-node.active .rm-mes{color:var(--teal-light);}
+  .rm-node.active .rm-title{color:#fff;}
+  .rm-detail{background:var(--bg-soft-2); border-radius:14px; padding:22px 26px; flex:1; overflow:auto;}
+  .rm-detail .rm-row{margin-bottom:14px;}
+  .rm-detail .rm-row:last-child{margin-bottom:0;}
+  .rm-detail .rm-row h4{margin:0 0 4px; font-size:11.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--teal-dark);}
+  .rm-detail .rm-row p{margin:0; font-size:14px; line-height:1.55;}
+  .rm-detail .rm-row.story{background:#fff; border-radius:10px; padding:12px 16px; border-left:3px solid var(--teal);}
+  .rm-cols{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+
+  /* ---------- sources ---------- */
+  .sources-grid{columns:2; column-gap:40px;}
+  .source-item{
+    break-inside:avoid; margin-bottom:14px; padding-bottom:14px;
+    border-bottom:1px solid var(--line); font-size:13.5px; line-height:1.5;
+  }
+  .source-item .tag{
+    display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--teal-dark); background:#e5faf6; border-radius:5px;
+    padding:2px 7px; margin-right:8px;
+  }
+
+  /* ---------- title & closing slides ---------- */
+  .title-slide{justify-content:center;}
+  .title-slide h1{font-size:clamp(38px,5vw,58px); max-width:900px;}
+  .title-slide .subtitle{font-size:17px; color:rgba(255,255,255,.7); max-width:640px; margin-top:14px;}
+  .title-meta{margin-top:auto; font-size:13px; color:rgba(255,255,255,.55);}
+  .title-meta b{color:#fff;}
+
+  .closing-quote{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    border-radius:16px; padding:34px 40px; font-size:19px; line-height:1.6;
+    font-style:italic; font-weight:600; max-width:760px; margin:auto;
+  }
+
+  /* ---------- kpi list slide 23 ---------- */
+  .kpi-panel{background:var(--navy); color:#fff; border-radius:16px; padding:26px 30px; margin-bottom:20px;}
+  .kpi-panel h3{margin:0 0 16px; font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:var(--teal-light);}
+  .kpi-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px 26px;}
+  .kpi-item{display:flex; gap:12px; align-items:flex-start; font-size:14px; line-height:1.5;}
+  .kpi-icon{flex:none; width:30px; height:30px; border-radius:8px; background:rgba(255,255,255,.1);
+    display:flex; align-items:center; justify-content:center; font-size:15px;}
+
+  /* ---------- accordion (click-to-reveal buttons) ---------- */
+  .accordion{display:flex; flex-direction:column; gap:10px;}
+  .acc-item{
+    border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    background:#fff; transition:border-color .2s ease;
+  }
+  .acc-item.open{border-color:var(--teal);}
+  .acc-item.dark-acc{background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.14);}
+  .acc-item.dark-acc.open{border-color:var(--teal-light);}
+  .acc-head{
+    width:100%; display:flex; align-items:center; gap:14px; padding:14px 18px;
+    background:none; border:none; cursor:pointer; text-align:left; font-family:inherit;
+  }
+  .acc-head .acc-num{
+    flex:none; width:30px; height:30px; border-radius:50%; background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;
+  }
+  .dark-acc .acc-head .acc-num{background:var(--teal-dark);}
+  .acc-head .acc-title{flex:1; font-size:15px; font-weight:700; color:var(--ink);}
+  .dark-acc .acc-head .acc-title{color:#fff;}
+  .acc-head .acc-chevron{flex:none; font-size:13px; color:var(--muted); transition:transform .25s ease;}
+  .acc-item.open .acc-head .acc-chevron{transform:rotate(180deg); color:var(--teal-dark);}
+  .dark-acc .acc-head .acc-chevron{color:rgba(255,255,255,.5);}
+  .dark-acc.open .acc-head .acc-chevron{color:var(--teal-light);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .acc-body-inner{padding:0 18px 16px 62px; font-size:13.5px; line-height:1.6; color:var(--ink);}
+  .acc-body-inner .sub{display:block; font-size:12.5px; font-style:italic; color:var(--muted); margin-bottom:4px;}
+  .dark-acc .acc-body-inner{color:rgba(255,255,255,.8);}
+  .dark-acc .acc-body-inner .sub{color:rgba(255,255,255,.5);}
+
+  /* ---------- matrix chips (interactive column focus) ---------- */
+  .matrix-chips{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .chip-btn{
+    border:1px solid var(--line); background:#fff; border-radius:999px; padding:8px 16px;
+    font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+    display:flex; gap:6px; align-items:center; color:var(--ink); transition:all .2s ease;
+  }
+  .chip-btn .chip-score{font-weight:800; color:var(--teal-dark);}
+  .chip-btn.active{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .chip-btn.active .chip-score{color:var(--teal-light);}
+  td[data-col].col-focus, th[data-col].col-focus{outline:2px solid var(--teal); outline-offset:-2px;}
+  .matrix-summary{margin-top:14px; background:var(--bg-soft); border-radius:12px; padding:14px 18px; font-size:13.5px; line-height:1.55;}
+  .matrix-summary .label{display:block; font-weight:700; text-transform:uppercase; font-size:11px; letter-spacing:.07em; color:var(--teal-dark); margin-bottom:4px;}
+
+  /* ---------- scroll nav arrows ---------- */
+  .nav-arrow{
+    position:fixed; top:50%; transform:translateY(-50%);
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(255,255,255,.9); box-shadow:var(--shadow);
+    border:none; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; z-index:45; font-size:18px; color:var(--navy);
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .nav-arrow:hover{transform:translateY(-50%) scale(1.08);}
+  .nav-arrow.prev{left:22px;}
+  .nav-arrow.next{right:22px;}
+  .nav-arrow[disabled]{opacity:.25; cursor:default;}
+  .nav-arrow[disabled]:hover{transform:translateY(-50%);}
+
+  .dots{
+    position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+    display:flex; gap:6px; z-index:45;
+    background:rgba(13,23,41,.55); backdrop-filter:blur(6px);
+    padding:8px 12px; border-radius:20px;
+  }
+  .dots .dot-btn{
+    width:7px; height:7px; border-radius:50%; border:none; padding:0;
+    background:rgba(255,255,255,.35); cursor:pointer;
+  }
+  .dots .dot-btn.active{background:var(--teal-light); width:20px; border-radius:4px;}
+
+  .help-hint{
+    position:fixed; bottom:16px; right:24px; z-index:45;
+    font-size:11px; color:rgba(255,255,255,.75); letter-spacing:.03em;
+    background:rgba(13,23,41,.55); backdrop-filter:blur(6px);
+    padding:6px 12px; border-radius:20px;
+  }
+
+  @media (max-width:900px){
+    .slide{padding:64px 26px 40px;}
+    .stat-grid.cols-3, .stat-grid.cols-4{grid-template-columns:1fr;}
+    .sources-grid{columns:1;}
+    .rm-timeline{flex-wrap:wrap;}
+    .funnel-row{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-fill" id="progressFill"></div></div>
+<div class="kiosko-brand"><span class="dot"></span>KIOSKO · MÉXICO</div>
+<div class="hud"><span class="count" id="slideCount">01 / 25</span></div>
+
+<div class="deck">
+  <div class="stage" id="stage">
+
+    <!-- 1 -->
+    <section class="slide dark title-slide" data-index="1">
+      <div class="slide-eyebrow">Desafío técnico · Product Manager POS</div>
+      <h1>Kiosko en México</h1>
+      <p class="subtitle">Estrategia de entrada al mercado: investigación, competencia, propuesta de valor y plan de ejecución.</p>
+      <div class="title-meta"><b>Leonardo Torres</b> · Product Manager<br>Julio 2026</div>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-index="2">
+      <h1>El reto: entrar a México con criterio, no solo con ambición</h1>
+      <p class="kicker">&nbsp;</p>
+      <div class="slide-body">
+        <div class="accordion" id="acc-2"></div>
+        <div class="note-strip">Aclaración del ejercicio: se emplea un producto ficticio ("Kiosko"), inspirado en la categoría real de punto de venta. La investigación utiliza exclusivamente fuentes públicas.</div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-index="3">
+      <h1>Resumen ejecutivo</h1>
+      <div class="slide-body">
+        <p style="font-size:14.5px; line-height:1.6; margin:0 0 18px;">México representa la siguiente frontera lógica para Kiosko: un mercado de aproximadamente USD 1.7 mil millones que crece cerca de 9.7% anual, en el que las microempresas, que representan 95% de los negocios del país, prácticamente no utilizan tecnología de gestión. La oportunidad no consiste únicamente en captar usuarios de la competencia, sino en digitalizar por primera vez a un mercado que apenas comienza, en el momento en que el SAT, la banca y el Mundial 2026 vuelven urgente esa digitalización.</p>
+        <div class="tabs" id="tabs-chart3"></div>
+        <div class="chart-wrap" id="chart3-wrap"></div>
+        <div class="stat-grid cols-4">
+          <div class="stat-card"><div class="num">23.5%</div><div class="desc">de las microempresas mexicanas utiliza internet en su operación diaria</div><span class="src">Fuente: INEGI / ENAPROCE</span></div>
+          <div class="stat-card"><div class="num ink">US$1.72 mM</div><div class="desc">tamaño del mercado POS en México en 2025, con proyección a US$2.70 mM en 2030</div><span class="src">Fuente: Mordor Intelligence</span></div>
+          <div class="stat-card"><div class="num">54.8%</div><div class="desc">tasa de informalidad laboral a nivel nacional</div><span class="src">Fuente: INEGI, ENOE 2025</span></div>
+          <div class="stat-card"><div class="num ink">692K</div><div class="desc">mipymes ya digitalizadas por el programa gubernamental "Crece tu Mipyme", con meta de 1M</div><span class="src">Fuente: Secretaría de Economía / Visa</span></div>
+        </div>
+        <div class="quote-box"><span class="label">Tesis de este documento</span>Competir en México no depende de superar en funcionalidades a Clip: depende de ser el camino más simple para que un micronegocio venda, cobre y cumpla con el SAT desde el primer día, desde su teléfono, sin enfrentarse directamente a los jugadores de pagos.</div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-index="4">
+      <h1>El mercado POS mexicano crece a doble dígito</h1>
+      <p class="kicker">Investigación de mercado: contexto</p>
+      <div class="slide-body" style="flex-direction:row; gap:36px; align-items:stretch;">
+        <div style="flex:1.3; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:flex-end; gap:36px; height:220px; padding:0 20px;">
+            <div style="text-align:center;">
+              <div style="font-size:13px; font-weight:700; margin-bottom:6px;">1.72</div>
+              <div style="width:90px; height:130px; background:var(--navy); border-radius:6px 6px 0 0;"></div>
+              <div style="font-size:12px; color:var(--muted); margin-top:6px;">2025</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:13px; font-weight:700; margin-bottom:6px;">2.7</div>
+              <div style="width:90px; height:204px; background:var(--teal); border-radius:6px 6px 0 0;"></div>
+              <div style="font-size:12px; color:var(--muted); margin-top:6px;">2030</div>
+            </div>
+          </div>
+          <p style="font-weight:700; font-size:13.5px; margin:22px 0 6px;">Tasa de crecimiento anual compuesta estimada = 9.7% (2025–2030)</p>
+          <p style="font-size:11.5px; font-style:italic; color:var(--muted); margin:0;">Fuente: Mordor Intelligence, Mexico POS Terminals Market, estimación actualizada a enero de 2026.</p>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px; justify-content:center;">
+          <div class="stat-card"><div class="num">68%</div><div class="desc">de las instalaciones POS en México ya son dispositivos móviles o portátiles (2025)</div><span class="src">Fuente: Mordor Intelligence</span></div>
+          <div class="stat-card"><div class="num">51%</div><div class="desc">de la demanda de terminales POS proviene del sector retail</div><span class="src">Fuente: Mordor Intelligence</span></div>
+          <div class="stat-card"><div class="num">~40%</div><div class="desc">de las terminales del país se concentran en CDMX, Guadalajara y Monterrey</div><span class="src">Fuente: Mordor Intelligence</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-index="5">
+      <h1>No se trata de captar usuarios: se trata de digitalizar</h1>
+      <p class="kicker">Investigación de mercado: comportamiento y estructura</p>
+      <div class="slide-body">
+        <div class="stat-grid cols-3">
+          <div class="stat-card"><div class="num">23.5%</div><div class="desc">de las microempresas mexicanas utiliza internet en su operación — la penetración tecnológica más baja entre todos los tamaños de empresa</div><span class="src">Fuente: INEGI / ENAPROCE</span></div>
+          <div class="stat-card"><div class="num ink">95.4%</div><div class="desc">de las unidades económicas del país son microempresas (10 empleados o menos)</div><span class="src">Fuente: INEGI, Censos Económicos 2024</span></div>
+          <div class="stat-card"><div class="num ink">5.47M</div><div class="desc">unidades económicas activas emplean a 27.9 millones de personas en México (2023)</div><span class="src">Fuente: INEGI, Censos Económicos 2024</span></div>
+        </div>
+        <div class="callout soft">
+          <span class="label">Lo que esto significa para Kiosko</span>
+          Las microempresas representan 95.4% de los negocios del país, pero generan apenas 16% del valor agregado, y solo una de cada cuatro utiliza internet en su operación diaria.<br><br>
+          Ese es precisamente el perfil que requiere una herramienta simple, accesible y móvil, no un sistema ERP. El mercado no está disputado por cambio de proveedor: la mayoría, simplemente, aún no cuenta con ninguna herramienta.
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-index="6">
+      <h1>Informalidad: un mercado que hoy opera fuera del radar fiscal</h1>
+      <p class="kicker">Investigación de mercado: contexto regulatorio</p>
+      <div class="slide-body">
+        <div class="stat-grid cols-3">
+          <div class="stat-card"><div class="num">54.8%</div><div class="desc">tasa de informalidad laboral a nivel nacional</div><span class="src">Fuente: INEGI, ENOE 2025</span></div>
+          <div class="stat-card"><div class="num ink">25.4%</div><div class="desc">del PIB nacional lo aportó la economía informal en 2024, un récord histórico</div><span class="src">Fuente: INEGI, Medición de la Economía Informal</span></div>
+          <div class="stat-card"><div class="num ink">38%</div><div class="desc">del valor agregado informal proviene del comercio al por menor</div><span class="src">Fuente: INEGI</span></div>
+        </div>
+        <div class="callout">
+          <span class="label">El insight regulatorio</span>
+          Muchos de los negocios a los que Kiosko debe dirigirse no facturan hoy, no por elección, sino porque nunca han contado con una herramienta simple para hacerlo. Desde enero de 2026, el SAT endureció el CFDI 4.0: cada operación debe ser demostrablemente real, con multas de $17,020 a $97,330 MXN por comprobante mal emitido y hasta 5% de la operación por no facturar. La omisión ya no es gratuita, lo que convierte el cumplimiento fiscal en el principal motivo de compra, no en un simple requisito técnico.
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-index="7">
+      <h1>Dos factores que convierten a 2026 en el momento de entrar</h1>
+      <p class="kicker">Investigación de mercado: por qué ahora</p>
+      <div class="slide-body">
+        <div class="accordion" id="acc-7"></div>
+      </div>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-index="8">
+      <h1>Panorama competitivo (1/2): pagos y hardware</h1>
+      <p class="kicker">Investigación de mercado: competencia y referentes</p>
+      <div class="slide-body">
+        <div class="table-toolbar">
+          <div class="search-box">🔍 <input type="text" data-table="t8" placeholder="Filtrar competidor..."></div>
+          <span class="hint-tag">Clic en un encabezado para ordenar</span>
+        </div>
+        <div id="t8-wrap"></div>
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-index="9">
+      <h1>Panorama competitivo (2/2): gestión y software</h1>
+      <p class="kicker">Investigación de mercado: competencia y referentes</p>
+      <div class="slide-body">
+        <div class="table-toolbar">
+          <div class="search-box">🔍 <input type="text" data-table="t9" placeholder="Filtrar competidor..."></div>
+          <span class="hint-tag">Clic en un encabezado para ordenar</span>
+        </div>
+        <div id="t9-wrap"></div>
+      </div>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-index="10">
+      <h1>Matriz comparativa: por qué Kiosko es la mejor opción</h1>
+      <p class="kicker">Investigación de mercado: síntesis competitiva</p>
+      <div class="slide-body">
+        <div id="matrix-wrap"></div>
+        <div class="note-strip">Kiosko es la única propuesta que combina cumplimiento nativo, diseño móvil auténtico y un camino activo hacia la formalización; el resto sobresale en una o dos dimensiones, ninguno en todas.</div>
+      </div>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-index="11">
+      <h1>Mapa de estrategia: a quién nos dirigimos, y en qué orden</h1>
+      <p class="kicker">Estrategia de entrada al mercado, más allá del posicionamiento</p>
+      <div class="slide-body">
+        <div class="rm-timeline" id="etapas-timeline"></div>
+        <div class="rm-detail" id="etapas-detail"></div>
+        <div class="note-strip">Cada etapa no reemplaza a la anterior: se suma. Hacia el mes 6, Kiosko atiende simultáneamente las cuatro capas del mercado, comenzando siempre por la más desatendida.</div>
+      </div>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-index="12">
+      <h1>Cómo competir frente a los jugadores más fuertes</h1>
+      <p class="kicker">Propuesta y priorización</p>
+      <div class="slide-body">
+        <div class="tabs" id="tabs-competitors"></div>
+        <div id="panel-competitors"></div>
+      </div>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide dark" data-index="13">
+      <div class="slide-eyebrow">Diferenciación</div>
+      <h1>Lo que nos diferencia del resto del mercado</h1>
+      <div class="slide-body">
+        <div class="accordion" id="acc-13"></div>
+      </div>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide dark" data-index="14">
+      <div class="slide-eyebrow">Insight estratégico</div>
+      <h1>La oportunidad no está en captar usuarios de otros competidores.</h1>
+      <div class="slide-body">
+        <p style="font-size:15px; line-height:1.65; color:rgba(255,255,255,.8); max-width:800px; margin:0 0 26px;">Está en captar a las microempresas mexicanas que hoy no utilizan ningún sistema, ofreciéndoles el camino más simple para vender, cobrar y cumplir con el SAT al mismo tiempo, antes de que otro competidor las capte con un dispositivo sin costo.</p>
+        <div class="tabs" id="tabs-insight"></div>
+        <div id="panel-insight"></div>
+      </div>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-index="15">
+      <h1>A quién nos dirigimos primero</h1>
+      <p class="kicker">Determinación del usuario objetivo</p>
+      <div class="slide-body">
+        <div class="tabs" id="tabs-personas"></div>
+        <div id="panel-personas"></div>
+      </div>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-index="16">
+      <h1>Nuestro usuario principal:</h1>
+      <p class="kicker">Estrategia comercial sobre el usuario primario</p>
+      <div class="slide-body">
+        <div class="quote-box" style="margin-bottom:22px;">Rosa no busca "un software": busca resolver su cumplimiento fiscal con tranquilidad y seguir vendiendo sin perder tiempo.</div>
+        <div class="accordion" id="acc-16"></div>
+      </div>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-index="17">
+      <h1>Cómo introducimos el producto al usuario objetivo</h1>
+      <p class="kicker">&nbsp;</p>
+      <div class="slide-body">
+        <div class="funnel-row" id="funnel-row"></div>
+        <div class="funnel-detail" id="funnel-detail"></div>
+        <div class="note-strip">Momento crítico: el tiempo entre "Descubrimiento" y "Activación" debe completarse en una sola sesión desde el celular, sin solicitar tarjeta de crédito ni requerir instalación en una computadora.</div>
+      </div>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-index="18">
+      <h1>Propuesta de valor de Kiosko para México</h1>
+      <p class="kicker">Propuesta y priorización</p>
+      <div class="slide-body">
+        <div class="quote-box" style="margin-bottom:22px;">"El punto de venta que te ayuda a vender, facturar y ordenar tu negocio desde el celular, con total tranquilidad ante el SAT, sin instalaciones y sin condiciones ocultas."</div>
+        <div class="accordion" id="acc-18"></div>
+      </div>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-index="19">
+      <h1>Roadmap detallado (1/2): meses 1 a 3</h1>
+      <p class="kicker">Objetivo mensual, hito y sprints quincenales</p>
+      <div class="slide-body">
+        <div class="rm-timeline" id="rm1-timeline"></div>
+        <div class="rm-detail" id="rm1-detail"></div>
+      </div>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-index="20">
+      <h1>Roadmap detallado (2/2): meses 4 a 6</h1>
+      <p class="kicker">Objetivo mensual, hito y sprints quincenales</p>
+      <div class="slide-body">
+        <div class="rm-timeline" id="rm2-timeline"></div>
+        <div class="rm-detail" id="rm2-detail"></div>
+      </div>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-index="21">
+      <h1>Campaña de marketing alineada al roadmap</h1>
+      <p class="kicker">Estrategia comercial que respalda cada mes del plan de ejecución</p>
+      <div class="slide-body">
+        <div class="rm-timeline" id="camp-timeline"></div>
+        <div class="rm-detail" id="camp-detail"></div>
+        <div class="note-strip">Esta campaña se ejecuta en paralelo a cada fase del roadmap de producto: no es un anexo, es la otra mitad de la estrategia de entrada.</div>
+      </div>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-index="22">
+      <h1>El criterio detrás del orden</h1>
+      <p class="kicker">Propuesta y priorización. Se priorizó por impacto en la decisión de adopción, multiplicado por la urgencia regulatoria y competitiva, y no como una lista exhaustiva de funcionalidades posibles.</p>
+      <div class="slide-body">
+        <div class="accordion" id="acc-22"></div>
+      </div>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-index="23">
+      <h1>De la validación a la ejecución</h1>
+      <p class="kicker">Cierre: cómo lo validaríamos y cómo lo mediríamos</p>
+      <div class="slide-body">
+        <div class="accordion" id="acc-23" style="margin-bottom:22px;"></div>
+        <div class="kpi-panel">
+          <h3>Cómo mediríamos el éxito en los primeros 90 días</h3>
+          <div class="kpi-grid">
+            <div class="kpi-item"><span class="kpi-icon">⌂</span>Negocios activos facturando</div>
+            <div class="kpi-item"><span class="kpi-icon">◔</span>Tiempo a la primera factura emitida (meta: menos de 1 día)</div>
+            <div class="kpi-item"><span class="kpi-icon">↻</span>Tasa de retención al mes 2</div>
+            <div class="kpi-item"><span class="kpi-icon">▤</span>Facturas emitidas por negocio activo (profundidad de uso)</div>
+            <div class="kpi-item" style="grid-column:1 / -1;"><span class="kpi-icon">★</span>NPS / satisfacción de micro-negocios en el mes 1</div>
+          </div>
+        </div>
+        <div class="closing-quote" style="background:var(--bg-soft); border:none; color:var(--ink); margin:0;">"No buscamos desplazar a Clip en su terreno. Buscamos ser la puerta de entrada de México a la facturación electrónica, un micro-negocio a la vez."</div>
+      </div>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-index="24">
+      <h1>Fuentes</h1>
+      <p class="kicker">Todas las cifras citadas en este documento provienen de fuentes públicas</p>
+      <div class="slide-body">
+        <div class="sources-grid" id="sources-grid"></div>
+      </div>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide dark title-slide" data-index="25">
+      <div class="slide-eyebrow">Kiosko · Estrategia de entrada a México</div>
+      <h1>Gracias</h1>
+      <p class="subtitle">Con gusto resuelvo cualquier pregunta sobre la investigación, la propuesta o el plan de ejecución.</p>
+      <div class="title-meta"><b>Leonardo Torres</b> · Product Manager<br>leonardo.torres@distrito.me</div>
+    </section>
+
+  </div>
+</div>
+
+<button class="nav-arrow prev" id="prevBtn" aria-label="Slide anterior">‹</button>
+<button class="nav-arrow next" id="nextBtn" aria-label="Siguiente slide">›</button>
+<div class="dots" id="dots"></div>
+<div class="help-hint">Desplázate o usa ↓ ↑ para navegar</div>
+
+<script>
+(function(){
+  "use strict";
+  var TOTAL = 25;
+  var current = 1;
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dotsWrap = document.getElementById('dots');
+  var progressFill = document.getElementById('progressFill');
+  var slideCount = document.getElementById('slideCount');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  for (var i=1;i<=TOTAL;i++){
+    var d = document.createElement('button');
+    d.className = 'dot-btn' + (i===1?' active':'');
+    d.setAttribute('data-i', i);
+    d.setAttribute('aria-label', 'Ir a la slide '+i);
+    d.addEventListener('click', (function(idx){ return function(){ scrollToSlide(idx); }; })(i));
+    dotsWrap.appendChild(d);
+  }
+
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+
+  function updateHUD(n){
+    current = n;
+    var dotEls = dotsWrap.querySelectorAll('.dot-btn');
+    dotEls.forEach(function(d,i){ d.classList.toggle('active', (i+1)===n); });
+    slideCount.innerHTML = pad(n)+' <span style="opacity:.5">/ '+TOTAL+'</span>';
+    prevBtn.disabled = n===1;
+    nextBtn.disabled = n===TOTAL;
+  }
+
+  function scrollToSlide(n){
+    if(n<1||n>TOTAL) return;
+    var el = slides[n-1];
+    if(el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function next(){ scrollToSlide(Math.min(current+1, TOTAL)); }
+  function prev(){ scrollToSlide(Math.max(current-1, 1)); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  document.addEventListener('keydown', function(e){
+    if(['INPUT','TEXTAREA'].indexOf(document.activeElement.tagName) !== -1) return;
+    if(e.key==='ArrowDown'||e.key===' '){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ e.preventDefault(); scrollToSlide(1); }
+    else if(e.key==='End'){ e.preventDefault(); scrollToSlide(TOTAL); }
+  });
+
+  // scroll progress bar (based on real scroll position, not slide index)
+  function updateProgress(){
+    var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = scrollable>0 ? (window.scrollY/scrollable*100) : 0;
+    progressFill.style.width = Math.max(0,Math.min(100,pct))+'%';
+  }
+  window.addEventListener('scroll', updateProgress, {passive:true});
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+
+  // reveal-on-scroll + scrollspy for HUD/dots
+  if('IntersectionObserver' in window){
+    var revealObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.1, rootMargin:'0px 0px -6% 0px'});
+    slides.forEach(function(s){ revealObserver.observe(s); });
+
+    var spyObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          updateHUD(parseInt(entry.target.getAttribute('data-index'),10));
+        }
+      });
+    }, {rootMargin:'-45% 0px -45% 0px', threshold:0});
+    slides.forEach(function(s){ spyObserver.observe(s); });
+  } else {
+    slides.forEach(function(s){ s.classList.add('in-view'); });
+  }
+
+  updateHUD(1);
+
+  /* ================= DATA ================= */
+  var t8data = [
+    {c:'Clip', m:'Hardware más cobro con tarjeta', p:'Sin mensualidad; comisión de 3.6%+IVA por transacción', f:'Marca líder en cobro con tarjeta; terminales desde $899; socio del programa "Crece tu Mipyme"', b:'Limitado en inventario, facturación y administración del negocio'},
+    {c:'Mercado Pago (Point)', m:'Terminal de cobro dentro del ecosistema de Mercado Libre', p:'Sin renta mensual; comisión de 3.5%+IVA por transacción', f:'Tráfico y confianza de marca considerables; también socio de "Crece tu Mipyme"', b:'Orientado a cobrar, no a administrar el negocio ni emitir CFDI'},
+    {c:'SumUp', m:'Terminal de cobro portátil', p:'Terminal de $349 a $2,999 (pago único); comisión de 3.5%', f:'Ingreso reciente al mercado mexicano; promoción de 0% de comisión por 60 días', b:'Marca aún nueva en México, sin red de confianza local'},
+    {c:'Epos Now', m:'Hardware y software combinados', p:'Cotización personalizada (equipo más licencia)', f:'Jugador global establecido; presencia sólida en retail vertical (abarrotes)', b:'Sin precio público disponible; implementación pesada para un micro-negocio'}
+  ];
+  var t9data = [
+    {c:'Loyverse', m:'POS gratuito (ventas más inventario básico)', p:'Gratuito (núcleo)', f:'Fricción de entrada mínima; interfaz simple para negocios que inician', b:'Sin CFDI nativo; requiere conectar un proveedor de certificación externo'},
+    {c:'Poster POS', m:'Solución en la nube, vertical de cafés y restaurantes', p:'Desde US$19/mes', f:'Funciona sin conexión, aplicaciones móviles nativas, buen soporte de inventario', b:'Sin CFDI mexicano nativo; enfoque en food service, no en retail general'},
+    {c:'Aspel SAE / Caja', m:'Software administrativo de larga trayectoria', p:'$260 a $1,108/mes +IVA', f:'Más de 30 años en el mercado; confianza contable consolidada', b:'Diseño de escritorio; curva de aprendizaje elevada para el punto de venta'},
+    {c:'SoftRestaurant', m:'POS especializado para restaurantes', p:'Licencia perpetua más planes en la nube (SR12)', f:'Más de 25 años de trayectoria; dominante en el vertical de food service', b:'Limitado a un solo vertical; poca relevancia para retail general'},
+    {c:'CONTPAQi (Vende)', m:'Ecosistema contable-fiscal', p:'Desde $390/mes', f:'Integración contable-fiscal robusta; fuerte presencia con despachos contables', b:'Diseñado para el contador, no para el mostrador del negocio'},
+    {c:'Bind ERP', m:'ERP en la nube para distribuidores', p:'Desde $599/mes', f:'CFDI ilimitado incluido; sólido módulo de inventario multi-almacén', b:'Complejidad propia de un ERP; sobredimensionado para un micro-negocio'}
+  ];
+  var matrixCriteria = [
+    {label:'CFDI 4.0 nativo', v:['si','no','no','si']},
+    {label:'Diseño móvil, sin versión reducida', v:['si','parcial','si','no']},
+    {label:'Multi-sucursal e inventario', v:['si','no','parcial','si']},
+    {label:'Sin permanencia para comenzar', v:['si','si','si','no']},
+    {label:'Formalización guiada (alta de RFC)', v:['si','no','no','no']},
+    {label:'IA para captura de productos y reportes', v:['si','no','no','no']}
+  ];
+  var matrixCols = ['Kiosko','Clip / Mercado Pago','Loyverse','Aspel / CONTPAQi'];
+
+  var competitors = [
+    {name:'Frente a Mercado Pago', sub:'Jugador dominante en marca y tráfico de Mercado Libre', body:'No competir directamente en pagos, sino integrar. Kiosko se conecta a Mercado Pago Point mediante API y ofrece la administración (inventario, CFDI, reportes) que Point no cubre. Nos posicionamos como el complemento, no como el rival.'},
+    {name:'Frente a Clip', sub:'Líder en cobro con tarjeta, ya asociado al programa de gobierno', body:'Alianza en lugar de disputa por adquisición: integración nativa con la terminal Clip y coordinación de mercadotecnia dentro de "Crece tu Mipyme" para llegar a los mismos negocios con un menor costo de adquisición.'},
+    {name:'Frente a Aspel / CONTPAQi', sub:'Jugadores establecidos con relación arraigada con contadores', body:'Programa de socios para despachos contables: comisión por cliente migrado y kit de migración de datos en un día, de modo que el propio contador impulse el cambio.'}
+  ];
+
+  var personas = [
+    {key:'rosa', name:'Rosa', role:'Micro-comerciante — abarrotes o boutique de barrio, 1 a 2 colaboradores (usuario primario)', head:'teal',
+      situacion:'Cobra con Clip o en efectivo; registra ventas en cuaderno u hoja de cálculo; no factura de forma sistemática.',
+      motivacion:'Vender con rapidez y evitar sanciones del SAT, no modernizarse por convicción tecnológica.',
+      friccion:'Reticencia frente a la tecnología, escasez de tiempo, desconfianza ante contratos de permanencia.',
+      dispositivo:'Un smartphone Android; sin computadora en el negocio.'},
+    {key:'carlos', name:'Carlos', role:'Pyme en crecimiento — 2 a 3 sucursales (por ejemplo, cafetería o tienda de ropa)', head:'navy',
+      situacion:'Cuenta con un contador externo; cada sucursal factura o reporta por separado.',
+      motivacion:'Visibilidad consolidada entre sucursales y control de inventario.',
+      friccion:'Sistemas desconectados entre tiendas; reportes elaborados manualmente.',
+      dispositivo:'Tablet o computadora en caja; smartphone para supervisión remota.'}
+  ];
+
+  var funnelSteps = [
+    {t:'Detonante', d:'Recibe un aviso del SAT, o percibe que el negocio vecino ya está facturando.'},
+    {t:'Descubrimiento', d:'Busca en Google o redes sociales; recibe una recomendación de otro comerciante, o se lo sugiere su banco o Clip.'},
+    {t:'Evaluación', d:'Compara precio y facilidad de uso por WhatsApp o mediante una demostración breve, sin necesidad de tarjeta de crédito.'},
+    {t:'Activación', d:'Configura su primer producto y emite su primer ticket o factura ese mismo día, desde su celular.'},
+    {t:'Adopción de hábito', d:'Lo utiliza diariamente para el corte de caja y para identificar qué producto se vende más.'},
+    {t:'Expansión y referido', d:'Agrega una sucursal o usuario adicional, y lo recomienda a otro negocio del mismo giro.'}
+  ];
+
+  var roadmap1 = [
+    {mes:'Mes 1', obj:'Sentar las bases del cumplimiento fiscal', hito:'Primer ticket con CFDI 4.0 timbrado de extremo a extremo', s1:'Integración con un Proveedor Autorizado de Certificación (PAC) y diseño del flujo de venta y ticket.', s2:'Apertura y cierre de caja, alta de usuario único, control de calidad del timbrado; piloto interno con 5 negocios.', historia:'Como dueño de un micro-negocio, quiero emitir mi primer ticket con factura electrónica (CFDI 4.0) desde mi celular, para cumplir con el SAT sin complicaciones desde el primer día.'},
+    {mes:'Mes 2', obj:'Validar el producto con usuarios reales antes de escalar', hito:'Entre 50 y 100 micro-negocios en piloto cerrado, facturando de forma activa', s1:'Reclutamiento e incorporación asistida del piloto en una colonia o mercado de la Ciudad de México.', s2:'Recolección de retroalimentación, ajustes críticos de experiencia de usuario y primeros testimonios documentados.', historia:'Como micro-negocio piloto, quiero recibir ayuda personalizada para empezar a usar Kiosko y dar mi retroalimentación, para asegurar que la herramienta resuelva mis necesidades reales de facturación.'},
+    {mes:'Mes 3', obj:'Reducir la fricción del cobro integrando pagos', hito:'Primeras transacciones conciliadas automáticamente mediante una alianza de pagos', s1:'Selección y negociación de la alianza de pagos (pago desde el celular o adquirente local).', s2:'Integración técnica y conciliación automática dentro del punto de venta.', historia:'Como dueño de un micro-negocio, quiero cobrar con tarjeta desde mi celular y que se concilie automáticamente con mi factura, para no depender de hardware adicional ni hacer conciliaciones manuales.'}
+  ];
+  var roadmap2 = [
+    {mes:'Mes 4', obj:'Habilitar el segmento de pymes en crecimiento', hito:'Tres sucursales operando bajo una sola cuenta, con inventario consolidado', s1:'Gestión de múltiples usuarios y permisos por rol.', s2:'Multi-sucursal, inventario consolidado y lector de código de barras.', historia:'Como dueño de una pyme con varias sucursales, quiero administrarlas todas bajo una sola cuenta con permisos por rol, para tener control centralizado de mi inventario y mi equipo.'},
+    {mes:'Mes 5', obj:'Reducir la fricción operativa mediante inteligencia artificial', hito:'El alta de productos asistida por IA reduce el tiempo de configuración inicial en más de 70%', s1:'Alta de productos y contactos asistida por IA.', s2:'Reportes inteligentes y recomendaciones de inventario.', historia:'Como dueño de un micro-negocio, quiero dar de alta mis productos usando IA en vez de captura manual, para ahorrar tiempo en la configuración inicial de mi catálogo.'},
+    {mes:'Mes 6', obj:'Convertir el impulso regulatorio en adopción activa', hito:'Asistente de formalización guiada en producción, junto con la campaña de activación en las sedes del Mundial 2026', s1:'Asistente de alta de RFC y régimen fiscal simplificado.', s2:'Integración con báscula y lanzamiento de la campaña de formalización.', historia:'Como micro-negocio informal, quiero un asistente que me guíe paso a paso para darme de alta ante el SAT y obtener mi RFC, para formalizar mi negocio sin necesidad de un contador.'}
+  ];
+
+  var campaign = [
+    {mes:'Mes 1', obj:'Piloto semilla', hito:'Reclutamiento inicial en un mercado o colonia de la Ciudad de México y preparación de los primeros testimonios documentados.'},
+    {mes:'Mes 2', obj:'Recomendación incentivada', hito:'Programa de referidos: quien recomienda a otro comercio, ambos obtienen un mes sin costo; contenido en redes sociales con los primeros testimonios reales.'},
+    {mes:'Mes 3', obj:'Alianzas locales', hito:'Cámaras de comercio, mercados públicos y coordinación de mercadotecnia con la alianza de pagos seleccionada.'},
+    {mes:'Mes 4', obj:'Activación en pymes en crecimiento', hito:'Acercamiento a través de contadores y despachos aliados para el segmento de negocios multi-sucursal.'},
+    {mes:'Mes 5', obj:'Consolidación de marca', hito:'Campaña de posicionamiento en Ciudad de México, Guadalajara y Monterrey, ciudades que concentran cerca de 40% de las terminales POS del país: testimoniales reales, presencia en medios locales y contenido educativo sobre cumplimiento fiscal.'},
+    {mes:'Mes 6', obj:'Campaña de formalización', hito:'Mensaje vinculado al endurecimiento del SAT, en alianza con despachos contables.'}
+  ];
+
+  var sources = [
+    'DocDigitales – CFDI 4.0 y el SAT',
+    'El Universal – 692 mil mipymes digitalizadas',
+    'Fiscalcloud – lineamientos SAT 2026',
+    'gob.mx – Economía y Visa, comunicado',
+    'INEGI – Censos Económicos 2024',
+    'INEGI – ENOE, informalidad laboral',
+    'INEGI – Medición de la Economía Informal',
+    'Infobae – economía informal, 25.4% del PIB',
+    'Mordor Intelligence – mercado POS México',
+    'Visa México – Crece tu Mipyme',
+    'Yahoo Finanzas / ENAPROCE – tecnología en pymes',
+    'Mercado Pago – costos terminal Point',
+    'Clip México – sitio oficial',
+    'SumUp México – terminal de pago Go',
+    'Epos Now México – punto de venta',
+    'Loyverse – precios',
+    'Poster POS – precios',
+    'Aspel – Aspel Caja, precios',
+    'Soft Restaurant – precios',
+    'CONTPAQi – lista de precios',
+    'Bind ERP – precios'
+  ];
+
+  /* ================= RENDER: benchmark tables (click-to-expand rows) ================= */
+  function renderTable(mount, data, tableId){
+    function buildRows(list){
+      var html = '';
+      list.forEach(function(r,idx){
+        html += '<tr class="main-row'+(idx%2===1?' row-alt':'')+'" data-name="'+r.c.toLowerCase()+'" data-idx="'+idx+'">'+
+          '<td class="competitor">'+r.c+'</td><td>'+r.m+'</td><td>'+r.p+'</td>'+
+          '<td class="chev-cell"><span class="chev">⌄</span></td></tr>'+
+          '<tr class="detail-row" data-idx="'+idx+'" data-name="'+r.c.toLowerCase()+'" style="display:none"><td colspan="4"><div class="row-detail">'+
+            '<div class="rd-block strength"><h4>Fortaleza</h4><p>'+r.f+'</p></div>'+
+            '<div class="rd-block gap"><h4>Brecha frente a Kiosko</h4><p>'+r.b+'</p></div>'+
+          '</div></td></tr>';
+      });
+      return html;
+    }
+    function wireRows(){
+      mount.querySelectorAll('tr.main-row').forEach(function(tr){
+        tr.addEventListener('click', function(){
+          var idx = tr.getAttribute('data-idx');
+          var detail = mount.querySelector('tr.detail-row[data-idx="'+idx+'"]');
+          var open = detail.style.display !== 'none';
+          detail.style.display = open ? 'none' : 'table-row';
+          tr.classList.toggle('row-open', !open);
+        });
+      });
+    }
+    var html = '<table class="data-table" id="'+tableId+'"><thead><tr>'+
+      '<th data-k="c">Competidor <span class="arrow">↕</span></th>'+
+      '<th data-k="m">Modelo <span class="arrow">↕</span></th>'+
+      '<th data-k="p">Precio (MXN) <span class="arrow">↕</span></th>'+
+      '<th style="width:40px;"></th>'+
+      '</tr></thead><tbody>'+ buildRows(data) +'</tbody></table>'+
+      '<p class="hint-tag" style="margin-top:8px; display:block;">Clic en una fila para ver fortaleza y brecha frente a Kiosko</p>';
+    mount.innerHTML = html;
+    wireRows();
+
+    var table = mount.querySelector('table');
+    var sortState = {key:null, dir:1};
+    table.querySelectorAll('thead th[data-k]').forEach(function(th){
+      th.addEventListener('click', function(){
+        var key = th.getAttribute('data-k');
+        sortState.dir = (sortState.key===key) ? -sortState.dir : 1;
+        sortState.key = key;
+        table.querySelectorAll('th').forEach(function(h){h.classList.remove('sorted');});
+        th.classList.add('sorted');
+        var arrowSpan = th.querySelector('.arrow');
+        if(arrowSpan) arrowSpan.textContent = sortState.dir===1 ? '↑' : '↓';
+        var sorted = data.slice().sort(function(a,b){
+          return a[key].localeCompare(b[key]) * sortState.dir;
+        });
+        table.querySelector('tbody').innerHTML = buildRows(sorted);
+        wireRows();
+        applyFilter(tableId);
+      });
+    });
+  }
+  function applyFilter(tableId){
+    var input = document.querySelector('input[data-table="'+tableId+'"]');
+    if(!input) return;
+    var q = input.value.trim().toLowerCase();
+    document.querySelectorAll('#'+tableId+' tbody tr.detail-row').forEach(function(tr){ tr.style.display='none'; });
+    document.querySelectorAll('#'+tableId+' tbody tr.main-row').forEach(function(tr){ tr.classList.remove('row-open'); });
+    document.querySelectorAll('#'+tableId+' tbody tr').forEach(function(tr){
+      var name = tr.getAttribute('data-name');
+      tr.classList.toggle('hidden-row', q!=='' && name && name.indexOf(q)===-1);
+    });
+  }
+  renderTable(document.getElementById('t8-wrap'), t8data, 't8');
+  renderTable(document.getElementById('t9-wrap'), t9data, 't9');
+  document.querySelectorAll('input[data-table]').forEach(function(inp){
+    inp.addEventListener('input', function(){ applyFilter(inp.getAttribute('data-table')); });
+  });
+
+  /* ================= RENDER: matrix (interactive column focus + score chips) ================= */
+  (function(){
+    var wrap = document.getElementById('matrix-wrap');
+    var chipsHtml = '<div class="matrix-chips">';
+    matrixCols.forEach(function(c,i){
+      var score = matrixCriteria.filter(function(r){return r.v[i]==='si';}).length;
+      chipsHtml += '<button class="chip-btn'+(i===0?' active':'')+'" data-i="'+i+'">'+c+' <span class="chip-score">'+score+'/'+matrixCriteria.length+'</span></button>';
+    });
+    chipsHtml += '</div>';
+    var tableHtml = '<table class="matrix-table" id="matrixTable"><thead><tr><th>Criterio</th>';
+    matrixCols.forEach(function(c,i){ tableHtml += '<th data-col="'+i+'"'+(i===0?' class="hero"':'')+'>'+c+'</th>'; });
+    tableHtml += '</tr></thead><tbody>';
+    matrixCriteria.forEach(function(row){
+      tableHtml += '<tr><td>'+row.label+'</td>';
+      row.v.forEach(function(val,i){
+        var cls = val==='si' ? 'val-si' : (val==='no' ? 'val-no' : 'val-parcial');
+        var txt = val==='si' ? 'Sí' : (val==='no' ? 'No' : 'Parcial');
+        tableHtml += '<td data-col="'+i+'"'+(i===0?' class="hero-col"':'')+'><span class="'+cls+'">'+txt+'</span></td>';
+      });
+      tableHtml += '</tr>';
+    });
+    tableHtml += '</tbody></table>';
+    wrap.innerHTML = chipsHtml + tableHtml + '<div class="matrix-summary" id="matrix-summary"></div>';
+
+    function showSummary(i){
+      var missing = matrixCriteria.filter(function(r){return r.v[i]!=='si';}).map(function(r){return r.label;});
+      var html = '<span class="label">'+matrixCols[i]+'</span>';
+      html += missing.length===0
+        ? 'Cumple con los '+matrixCriteria.length+' criterios evaluados: la única propuesta que lo logra.'
+        : 'Le falta cubrir: '+missing.join('; ')+'.';
+      document.getElementById('matrix-summary').innerHTML = html;
+      wrap.querySelectorAll('[data-col]').forEach(function(el){
+        el.classList.toggle('col-focus', el.getAttribute('data-col')===String(i));
+      });
+      wrap.querySelectorAll('.chip-btn').forEach(function(b,bi){ b.classList.toggle('active', bi===i); });
+    }
+    wrap.querySelectorAll('.chip-btn').forEach(function(b){
+      b.addEventListener('click', function(){ showSummary(parseInt(b.getAttribute('data-i'),10)); });
+    });
+    wrap.querySelectorAll('#matrixTable thead th[data-col]').forEach(function(th){
+      th.style.cursor = 'pointer';
+      th.addEventListener('click', function(){ showSummary(parseInt(th.getAttribute('data-col'),10)); });
+    });
+    showSummary(0);
+  })();
+
+  /* ================= RENDER: accordions (click-to-reveal buttons) ================= */
+  var acc2Data = [
+    {t:'Un producto que ya opera en LatAm', d:'Kiosko opera actualmente en Colombia, Perú y República Dominicana: un punto de venta en la nube que miles de pymes utilizan para vender, facturar y controlar su inventario desde cualquier dispositivo.'},
+    {t:'México, el siguiente mercado', d:'México es el mercado de interés para su próxima expansión, sin operación previa ni conocimiento acumulado del terreno.'},
+    {t:'El mandato de este análisis', d:'Investigar el mercado, identificar contra quién y con quién se compara Kiosko, y proponer qué le haría falta para competir en México en un plan de ejecución a seis meses.'}
+  ];
+  var acc7Data = [
+    {t:'CFDI 4.0: la norma ya no admite excepciones', d:'Desde enero de 2026, el SAT exige demostrar que cada operación es real, existente y justificable. Multas de $17,020 a $97,330 MXN por comprobante, o 5% de cada venta no facturada. (Fuente: reforma al Código Fiscal de la Federación 2026, Fiscalcloud)'},
+    {t:'Pagos digitales con respaldo de gobierno y banca', d:'Desde diciembre de 2025, la Secretaría de Economía y Visa lideran "Crece tu Mipyme con pagos digitales", a la que se suman Clip, Mercado Pago, BBVA y ocho bancos adicionales. Meta: un millón de mipymes; ya se alcanzaron 692,000 con terminal sin costo, comisiones promocionales y pago desde el celular, con un incremento promedio de 68% en ventas con tarjeta tras su adopción. (Fuente: gob.mx, Visa, El Universal)'}
+  ];
+  var acc13Data = [
+    {t:'Cumplimiento nativo desde el primer día', d:'<span class="sub">frente a un módulo adicional o inexistente en Loyverse, Clip y Mercado Pago</span>'},
+    {t:'Diseño móvil auténtico', d:'<span class="sub">frente a un escritorio adaptado a formato de aplicación en Aspel y CONTPAQi</span>'},
+    {t:'Integramos los pagos, no competimos por ellos', d:'<span class="sub">frente a invertir en adquisición contra Clip y Mercado Pago de manera directa</span>'},
+    {t:'Camino activo hacia la formalización', d:'<span class="sub">ningún actor del mercado ayuda hoy a un negocio informal a dar ese paso</span>'},
+    {t:'Trayectoria multipaís en Latinoamérica', d:'<span class="sub">frente a jugadores locales aislados (Aspel, SoftRestaurant) o globales genéricos (Epos Now)</span>'}
+  ];
+  var acc16Data = [
+    {t:'Canal de descubrimiento', d:'WhatsApp Business y recomendación directa dentro de su misma calle o mercado; coordinación de mercadotecnia con Clip y Mercado Pago dentro de "Crece tu Mipyme".'},
+    {t:'Mensaje central', d:'"Empieza a facturar hoy con tranquilidad ante el SAT, desde tu celular, sin costo durante los primeros 30 días."'},
+    {t:'Oferta de entrada', d:'Plan gratuito o de muy bajo costo, sin tarjeta de crédito, con activación guiada en menos de diez minutos por WhatsApp.'},
+    {t:'Objeción principal', d:'"Es complicado, no tengo tiempo": se resuelve con incorporación asistida y alta de productos mediante IA, no con más funcionalidades.'},
+    {t:'Primer resultado a observar', d:'Su primera factura CFDI emitida y el corte de caja del día, el mismo día en que se registra.'}
+  ];
+  var acc18Data = [
+    {t:'Cumplimiento sin fricción', d:'CFDI 4.0 nativo desde el primer ticket, no como un módulo adicional que hay que configurar o pagar por separado.'},
+    {t:'Diseño móvil auténtico', d:'Concebido para el celular del comercio desde su diseño original, no como una versión reducida del escritorio.'},
+    {t:'Entrada accesible', d:'Plan de entrada por debajo del referente local, sin contrato de permanencia ni tarjeta de crédito.'}
+  ];
+  var acc22Data = [
+    {t:'Lo no negociable, primero', d:'Cumplimiento ante el SAT (CFDI 4.0). Sin esto, Kiosko no puede operar legalmente en México: es la licencia de entrada, no una ventaja competitiva.'},
+    {t:'Lo que reduce la fricción de activación', d:'Cobro integrado. Determina si el usuario completa su primera venta el mismo día en que se registra.'},
+    {t:'Lo que expande el mercado direccionable', d:'Multi-sucursal e inventario. Captura al segmento con mayor ticket promedio y mayor disposición a pagar.'},
+    {t:'Lo que profundiza la ventaja competitiva', d:'IA y formalización guiada. Diferenciación sostenible una vez obtenida la licencia para operar, no antes.'}
+  ];
+  var acc23Data = [
+    {t:'Validar antes de construir', d:'Validar con 8 a 10 entrevistas a micro-comerciantes en Ciudad de México antes de construir.'},
+    {t:'Prototipar el primer entregable', d:'Prototipar el Mes 1 (ticket con CFDI nativo) como primer entregable tangible, apoyado en herramientas de IA.'},
+    {t:'Cerrar la alianza de pagos en paralelo', d:'Cerrar en paralelo una alianza de pagos (pago desde el celular o adquirente local) para no depender de hardware propio.'}
+  ];
+  var insightData = [
+    {t:'Simplicidad móvil', d:'Diseñado para el teléfono del comercio, no una versión reducida del escritorio'},
+    {t:'Cumplimiento nativo', d:'CFDI 4.0 desde el primer ticket, no como módulo adicional que hay que configurar'},
+    {t:'Entrada accesible', d:'Precio y fricción de activación por debajo del referente local'}
+  ];
+  var etapasData = [
+    {mes:'Etapa 1 · Mes 1–3', obj:'Comercios sin ningún sistema', compite:'Cuaderno, hoja de cálculo o memoria: sin ninguna herramienta', estrategia:'Cumplimiento fiscal más simplicidad extrema; adopción por recomendación directa y WhatsApp'},
+    {mes:'Etapa 2 · Mes 3–5', obj:'Comercios que cobran sin gestionar', compite:'Clip, Mercado Pago, Loyverse', estrategia:'Se conserva el método de cobro existente; Kiosko integra el pago en lugar de competir contra él'},
+    {mes:'Etapa 3 · Mes 5–6', obj:'Comercios que buscan dejar el software heredado', compite:'Aspel, CONTPAQi, Bind ERP', estrategia:'Migración asistida en un día, soporte especializado y capacidades multi-sucursal'},
+    {mes:'Etapa 4 · Mes 6+', obj:'Comercios que nos comparan con el líder', compite:'Software de gestión y facturación líder (estándar del mercado)', estrategia:'Precio de entrada más competitivo, IA aplicada y velocidad de innovación regional en LatAm'}
+  ];
+
+  function renderAccordion(mountId, items, opts){
+    opts = opts || {};
+    var mount = document.getElementById(mountId);
+    if(!mount) return;
+    var html = '';
+    items.forEach(function(it,i){
+      html += '<div class="acc-item'+(opts.dark?' dark-acc':'')+(i===0?' open':'')+'">'+
+        '<button class="acc-head"><span class="acc-num">'+(i+1)+'</span><span class="acc-title">'+it.t+'</span><span class="acc-chevron">⌄</span></button>'+
+        '<div class="acc-body"><div class="acc-body-inner">'+it.d+'</div></div>'+
+      '</div>';
+    });
+    mount.innerHTML = html;
+    var itemEls = mount.querySelectorAll('.acc-item');
+    function measure(el){
+      var body = el.querySelector('.acc-body');
+      body.style.maxHeight = body.scrollHeight+'px';
+    }
+    itemEls.forEach(function(item){
+      if(item.classList.contains('open')) measure(item);
+      item.querySelector('.acc-head').addEventListener('click', function(){
+        var wasOpen = item.classList.contains('open');
+        itemEls.forEach(function(x){
+          x.classList.remove('open');
+          x.querySelector('.acc-body').style.maxHeight = '0px';
+        });
+        if(!wasOpen){
+          item.classList.add('open');
+          measure(item);
+        }
+      });
+    });
+  }
+  renderAccordion('acc-2', acc2Data);
+  renderAccordion('acc-7', acc7Data);
+  renderAccordion('acc-13', acc13Data, {dark:true});
+  renderAccordion('acc-16', acc16Data);
+  renderAccordion('acc-18', acc18Data);
+  renderAccordion('acc-22', acc22Data);
+  renderAccordion('acc-23', acc23Data);
+
+  /* ================= RENDER: insight tabs (slide 14) ================= */
+  (function(){
+    var tabsEl = document.getElementById('tabs-insight');
+    var panelEl = document.getElementById('panel-insight');
+    if(!tabsEl) return;
+    insightData.forEach(function(c,i){
+      var b = document.createElement('button');
+      b.className = 'tab-btn'+(i===0?' active':'');
+      b.textContent = c.t;
+      b.addEventListener('click', function(){
+        tabsEl.querySelectorAll('.tab-btn').forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');
+        show(i);
+      });
+      tabsEl.appendChild(b);
+    });
+    function show(i){
+      var c = insightData[i];
+      panelEl.innerHTML = '<div class="card-detail" style="background:rgba(255,255,255,.06);"><h3 style="color:var(--teal-light);">'+c.t+'</h3><p style="color:rgba(255,255,255,.8);">'+c.d+'</p></div>';
+    }
+    show(0);
+  })();
+
+  /* ================= RENDER: etapas road path (slide 11) ================= */
+  function renderEtapas(timelineId, detailId, data){
+    var tEl = document.getElementById(timelineId);
+    var dEl = document.getElementById(detailId);
+    if(!tEl) return;
+    data.forEach(function(m,i){
+      var btn = document.createElement('button');
+      btn.className = 'rm-node'+(i===0?' active':'');
+      btn.innerHTML = '<span class="rm-circle">'+(i+1)+'</span><div class="rm-mes">'+m.mes+'</div><div class="rm-title">'+m.obj+'</div>';
+      btn.addEventListener('click', function(){
+        tEl.querySelectorAll('.rm-node').forEach(function(n,ni){
+          n.classList.remove('active');
+          n.classList.toggle('done', ni<i);
+        });
+        btn.classList.add('active');
+        show(i);
+      });
+      tEl.appendChild(btn);
+    });
+    function show(i){
+      var m = data[i];
+      dEl.innerHTML =
+        '<div class="rm-cols">'+
+          '<div class="rm-row"><h4>Compite con</h4><p>'+m.compite+'</p></div>'+
+          '<div class="rm-row"><h4>Estrategia de captura</h4><p>'+m.estrategia+'</p></div>'+
+        '</div>';
+    }
+    show(0);
+  }
+  renderEtapas('etapas-timeline','etapas-detail', etapasData);
+
+  /* ================= RENDER: competitor tabs ================= */
+  (function(){
+    var tabsEl = document.getElementById('tabs-competitors');
+    var panelEl = document.getElementById('panel-competitors');
+    competitors.forEach(function(c,i){
+      var b = document.createElement('button');
+      b.className = 'tab-btn'+(i===0?' active':'');
+      b.textContent = c.name;
+      b.addEventListener('click', function(){
+        tabsEl.querySelectorAll('.tab-btn').forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');
+        showCompetitor(i);
+      });
+      tabsEl.appendChild(b);
+    });
+    function showCompetitor(i){
+      var c = competitors[i];
+      panelEl.innerHTML = '<div class="card-detail"><h3>'+c.name+'</h3><p class="sub">'+c.sub+'</p><p>'+c.body+'</p></div>';
+    }
+    showCompetitor(0);
+  })();
+
+  /* ================= RENDER: persona tabs ================= */
+  (function(){
+    var tabsEl = document.getElementById('tabs-personas');
+    var panelEl = document.getElementById('panel-personas');
+    personas.forEach(function(p,i){
+      var b = document.createElement('button');
+      b.className = 'tab-btn'+(i===0?' active':'');
+      b.textContent = p.name;
+      b.addEventListener('click', function(){
+        tabsEl.querySelectorAll('.tab-btn').forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');
+        showPersona(i);
+      });
+      tabsEl.appendChild(b);
+    });
+    function showPersona(i){
+      var p = personas[i];
+      panelEl.innerHTML = '<div class="persona-card">'+
+        '<div class="persona-head'+(p.head==='navy'?' alt':'')+'"><h3>'+p.name+'</h3><p>'+p.role+'</p></div>'+
+        '<div class="persona-body">'+
+          '<div class="field"><h4>Situación actual</h4><p>'+p.situacion+'</p></div>'+
+          '<div class="field"><h4>Motivación</h4><p>'+p.motivacion+'</p></div>'+
+          '<div class="field"><h4>Fricciones</h4><p>'+p.friccion+'</p></div>'+
+          '<div class="field"><h4>Dispositivo</h4><p>'+p.dispositivo+'</p></div>'+
+        '</div></div>';
+    }
+    showPersona(0);
+  })();
+
+  /* ================= RENDER: funnel stepper ================= */
+  (function(){
+    var rowEl = document.getElementById('funnel-row');
+    var detailEl = document.getElementById('funnel-detail');
+    funnelSteps.forEach(function(s,i){
+      var el = document.createElement('div');
+      el.className = 'funnel-step'+(i===0?' active':'');
+      el.innerHTML = '<div class="fnode">'+(i+1)+'</div><div class="flabel">'+s.t+'</div>';
+      el.addEventListener('click', function(){ showStep(i); });
+      rowEl.appendChild(el);
+    });
+    function showStep(i){
+      rowEl.querySelectorAll('.funnel-step').forEach(function(el,idx){
+        el.classList.toggle('active', idx===i);
+        el.classList.toggle('done', idx<i);
+      });
+      detailEl.innerHTML = '<h3>'+(i+1)+'. '+funnelSteps[i].t+'</h3><p>'+funnelSteps[i].d+'</p>';
+    }
+    showStep(0);
+  })();
+
+  /* ================= RENDER: roadmap timelines ================= */
+  function renderRoadmap(timelineId, detailId, data){
+    var tEl = document.getElementById(timelineId);
+    var dEl = document.getElementById(detailId);
+    data.forEach(function(m,i){
+      var btn = document.createElement('button');
+      btn.className = 'rm-node'+(i===0?' active':'');
+      btn.innerHTML = '<span class="rm-circle">'+(i+1)+'</span><div class="rm-mes">'+m.mes+'</div><div class="rm-title">'+m.obj+'</div>';
+      btn.addEventListener('click', function(){
+        tEl.querySelectorAll('.rm-node').forEach(function(n,ni){
+          n.classList.remove('active');
+          n.classList.toggle('done', ni<i);
+        });
+        btn.classList.add('active');
+        show(i);
+      });
+      tEl.appendChild(btn);
+    });
+    function show(i){
+      var m = data[i];
+      dEl.innerHTML =
+        '<div class="rm-row"><h4>Hito clave</h4><p>'+m.hito+'</p></div>'+
+        '<div class="rm-cols">'+
+          '<div class="rm-row"><h4>Sprint 1 (día 1–15)</h4><p>'+m.s1+'</p></div>'+
+          '<div class="rm-row"><h4>Sprint 2 (día 16–30)</h4><p>'+m.s2+'</p></div>'+
+        '</div>'+
+        '<div class="rm-row story" style="margin-top:14px;"><h4>Historia de usuario</h4><p>'+m.historia+'</p></div>';
+    }
+    show(0);
+  }
+  renderRoadmap('rm1-timeline','rm1-detail', roadmap1);
+  renderRoadmap('rm2-timeline','rm2-detail', roadmap2);
+
+  /* ================= RENDER: campaign timeline ================= */
+  (function(){
+    var tEl = document.getElementById('camp-timeline');
+    var dEl = document.getElementById('camp-detail');
+    campaign.forEach(function(m,i){
+      var btn = document.createElement('button');
+      btn.className = 'rm-node'+(i===0?' active':'');
+      btn.innerHTML = '<span class="rm-circle">'+(i+1)+'</span><div class="rm-mes">'+m.mes+'</div><div class="rm-title">'+m.obj+'</div>';
+      btn.addEventListener('click', function(){
+        tEl.querySelectorAll('.rm-node').forEach(function(n,ni){
+          n.classList.remove('active');
+          n.classList.toggle('done', ni<i);
+        });
+        btn.classList.add('active');
+        show(i);
+      });
+      tEl.appendChild(btn);
+    });
+    function show(i){
+      var m = campaign[i];
+      dEl.innerHTML = '<div class="rm-row"><h4>'+m.mes+' — '+m.obj+'</h4><p style="font-size:15px;">'+m.hito+'</p></div>';
+    }
+    show(0);
+  })();
+
+  /* ================= RENDER: exec summary interactive charts (slide 3) ================= */
+  var chart3Views = [
+    {key:'market', label:'Tamaño del mercado', type:'bar',
+      bars:[{label:'2025', value:1.72, valueLabel:'US$1.72 mM'}, {label:'2030 (proyección)', value:2.70, valueLabel:'US$2.70 mM'}],
+      caption:'<span class="big">+9.7% anual</span>Crecimiento compuesto estimado del mercado POS mexicano entre 2025 y 2030 (CAGR). Fuente: Mordor Intelligence.'},
+    {key:'adopcion', label:'Adopción tecnológica', type:'donut', percent:23.5, color:'#14b8a6',
+      caption:'<span class="big">23.5%</span>de las microempresas mexicanas utiliza internet en su operación diaria: la penetración tecnológica más baja entre todos los tamaños de empresa. Fuente: INEGI / ENAPROCE.'},
+    {key:'informalidad', label:'Informalidad', type:'donut', percent:54.8, color:'#c8951f',
+      caption:'<span class="big">54.8%</span>tasa de informalidad laboral a nivel nacional: la mayoría de estos negocios no factura hoy, no por elección, sino por falta de una herramienta simple. Fuente: INEGI, ENOE 2025.'}
+  ];
+  (function(){
+    var tabsEl = document.getElementById('tabs-chart3');
+    var wrapEl = document.getElementById('chart3-wrap');
+    if(!tabsEl) return;
+    chart3Views.forEach(function(v,i){
+      var b = document.createElement('button');
+      b.className = 'tab-btn'+(i===0?' active':'');
+      b.textContent = v.label;
+      b.addEventListener('click', function(){
+        tabsEl.querySelectorAll('.tab-btn').forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');
+        show(i);
+      });
+      tabsEl.appendChild(b);
+    });
+    function barChartHTML(v){
+      var max = Math.max.apply(null, v.bars.map(function(b){return b.value;}));
+      var html = '<div class="bar-chart-group">';
+      v.bars.forEach(function(b){
+        var h = Math.round((b.value/max)*140)+10;
+        html += '<div class="bar-col">'+
+          '<div class="bar-val">'+b.valueLabel+'</div>'+
+          '<div class="bar" style="height:'+h+'px;"></div>'+
+          '<div class="bar-label">'+b.label+'</div>'+
+        '</div>';
+      });
+      html += '</div>';
+      return html;
+    }
+    function donutSVG(percent, color){
+      var r = 54;
+      var c = Math.round(2*Math.PI*r*100)/100;
+      var offset = Math.round(c*(1-percent/100)*100)/100;
+      return '<svg width="140" height="140" viewBox="0 0 140 140">'+
+        '<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="#e7edf5" stroke-width="16"></circle>'+
+        '<circle cx="70" cy="70" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="16" stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" stroke-linecap="round" transform="rotate(-90 70 70)"></circle>'+
+        '<text x="70" y="78" text-anchor="middle" font-size="26" font-weight="800" fill="#111827">'+percent+'%</text>'+
+      '</svg>';
+    }
+    function show(i){
+      var v = chart3Views[i];
+      var visual = v.type==='bar' ? barChartHTML(v) : '<div class="donut-box">'+donutSVG(v.percent, v.color)+'</div>';
+      wrapEl.innerHTML = '<div class="chart-visual">'+visual+'</div><div class="chart-caption">'+v.caption+'</div>';
+    }
+    show(0);
+  })();
+
+  /* ================= RENDER: sources ================= */
+  (function(){
+    var grid = document.getElementById('sources-grid');
+    var html = '';
+    sources.forEach(function(s,i){
+      html += '<div class="source-item"><span class="tag">'+pad(i+1)+'</span>'+s+'</div>';
+    });
+    grid.innerHTML = html;
+  })();
+
+})();
+</script>
+</body>
+</html>
